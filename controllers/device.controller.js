@@ -10,6 +10,7 @@ exports.insert_devicedata = (req,res,next) => {
             heartbeat : req.body.heartbeat,
             temperature : req.body.temperature,
             humidity : req.body.humidity,
+            patientkey : req.body.patientkey,
             time:new Date()
         }
     );
@@ -23,7 +24,8 @@ exports.insert_devicedata = (req,res,next) => {
 }
 
 exports.get_devicedata = (req,res,next) => {
-    Device.find({},{ _id: 0 },function(err,result){
+    var query = { patientkey : req.body.patientkey}
+    Device.find(query,{ _id: 0 },{ sort : { $_id : -1 }, limit : 20 },function(err,result){
         if (err) {
             return next(err);
         }
