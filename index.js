@@ -1,12 +1,13 @@
 const http = require('http');
-const express = require('express');
+const express = require('express'); 
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 
 // Set up mongoose connection
 const mongoose = require('mongoose');
 
-let dev_db_url = 'mongodb://someuser:user123@ds123946.mlab.com:23946/productsample';
+let dev_db_url = 'mongodb://doctor:doctor1@ds137634.mlab.com:37634/doctorappdb';
 let mongoDB = process.env.MONGODB_URI || dev_db_url;
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
@@ -16,8 +17,7 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 var app = express();
 
 var originsWhitelist = [
-    'http://localhost:4200',      //this is my front-end url for development
-   // 'http://www.myproductionurl.com'
+    'http://localhost:4200'
 ];
 
 var corsOptions = {
@@ -40,42 +40,37 @@ var allowCrossDomain = function (req, res, next) {
 
 app.use(allowCrossDomain);
 
-const product  = require('./routes/product.route');
-const device = require('./routes/device.route');
+const patient = require('./routes/patient.route');
+const doctor = require('./routes/doctor.route');
+const userinfo =  require('./routes/logininfo.route');
 
-// initialize our express app
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-// app.use('/', (req,res) => {
-//     res.send("this is data");
-// });
-app.use('/products', product);
-app.use('/devices', device);
 
 
-// app.use(function (req, res, next) {
-//     var err = new Error('Not Found');
-//     err.status = 404;
-//     next(err);
-// });
+app.use('/user',userinfo);
+// app.use('/doctor',doctor);
 
-// const hostname = '127.0.0.1';
-// let port = 5000;
+
+app.use('/', (req, res) => {
+    res.send("This is phone");
+});
+
+
+// error handler
+app.use((err, req, res, next) => {
+    if (err.name === 'ValidationError') {
+        var valErrors = [];
+        Object.keys(err.errors).forEach(key => valErrors.push(err.errors[key].message));
+        res.status(422).send(valErrors)
+    }
+});
+
 let port = process.env.PORT || 8080;
 app.listen(port, () => {
     console.log(`Server started on port`+port);
 });
 
-// const server = http.createServer((req,res) => {
-//     res.statusCode = '200';
-//     res.setHeader('Content-Type', 'text/plain');
-//     res.end('Hello World\n');
-// });
-
-
-// server.listen(port, hostname, () => {
-//     console.log(`Server running at http://${hostname}:${port}/`);
-// });
 
 module.exports = app;
