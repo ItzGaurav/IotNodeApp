@@ -25,7 +25,7 @@ exports.insert_devicedata = (req,res,next) => {
 
 exports.get_devicedata = (req,res,next) => {
     var query = { patientkey : req.body.patientkey}
-    Device.find(query,{ _id: 0 },{ sort : { $_id : -1 }, limit : 20 },function(err,result){
+    Device.find(query,{ _id: 0 },{ sort : { $natural : -1 }, limit : 10 },function(err,result){
         if (err) {
             return next(err);
         }
